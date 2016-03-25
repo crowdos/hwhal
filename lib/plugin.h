@@ -14,6 +14,8 @@ public:
 
   bool load();
 
+  HwHal *hal();
+
 private:
   void unload();
 

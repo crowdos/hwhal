@@ -4,16 +4,14 @@
 #include "control.h"
 #include <string>
 
-class Context;
-
 class Info : public Control {
 public:
-  Info(Context *ctx);
-  ~Info();
+  Info() {}
+  virtual ~Info() {}
 
-  std::string maker();
-  std::string model();
-  std::string codeName();
+  virtual std::string maker() = 0;
+  virtual std::string model() = 0;
+  virtual std::string codeName() = 0;
 };
 
 #endif /* INFO_H */

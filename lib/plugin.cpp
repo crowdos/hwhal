@@ -6,7 +6,8 @@
 #include "hwhal.h"
 
 #define HWHAL_NAME                     "/usr/lib/hwhal/libhwhal.so"
-#define HWHAL_NAME_TEST                "libhwhal.so"
+#define HWHAL_NAME_TEST                "plugin/libhwhal-test.so"
+
 typedef HwHal *(*__init)();
 
 Plugin::Plugin() :
@@ -39,6 +40,13 @@ bool Plugin::load() {
 
   assert(m_hal != nullptr);
 
+  if (m_hal->version() != HWHAL_VERSION_CURRENT) {
+    std::cerr << "Failed to load hwhal: version mismatch" << std::endl;
+    m_hal->destroy();
+    m_hal = nullptr;
+    return false;
+  }
+
   return m_hal->init();
 }
 
@@ -52,6 +60,10 @@ void Plugin::unload() {
     dlclose(m_handle);
     m_handle = nullptr;
   }
+}
+
+HwHal *Plugin::hal() {
+  return m_hal;
 }
 
 const char *Plugin::path() {

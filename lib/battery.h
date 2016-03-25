@@ -3,12 +3,10 @@
 
 #include "control.h"
 
-class Context;
-
 class Battery : public Control {
 public:
-  Battery(Context *ctx);
-  ~Battery();
+  Battery() {}
+  virtual ~Battery() {}
 };
 
 #endif /* BATTERY_H */

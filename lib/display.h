@@ -3,18 +3,16 @@
 
 #include "control.h"
 
-class Context;
-
 class Display : public Control {
 public:
-  Display(Context *ctx);
-  ~Display();
+  Display() {}
+  virtual ~Display() {}
 
-  int brightness();
-  void setBrightness(int brightness);
+  virtual int brightness() = 0;
+  virtual void setBrightness(int brightness) = 0;
 
-  void blank(bool blank);
-  bool isBlank();
+  virtual void blank(bool blank) = 0;
+  virtual bool isBlank() = 0;
 };
 
 #endif /* DISPLAY_H */

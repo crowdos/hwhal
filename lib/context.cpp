@@ -1,5 +1,7 @@
 #include "context.h"
 #include "plugin.h"
+#include "hwhal.h"
+
 #include "display.h"
 #include "usb.h"
 #include "info.h"
@@ -56,18 +58,9 @@ Battery *Context::battery() {
 }
 
 template <typename T> T *Context::control(const std::string& name) {
-  try {
-    return dynamic_cast<T *>(m_controls.at(name));
-  } catch (const std::out_of_range& ex) {
-    T *t = new T(this);
-    if (!t->init(name)) {
-      delete t;
-      return nullptr;
-    }
+  return dynamic_cast<T *>(m_plugin->hal()->get(name));
+}
 
-    m_controls.insert(std::make_pair(name, t));
-    return t;
-  } catch (...) {
-    return nullptr;
-  }
+void Context::put(Control *control) {
+  m_plugin->hal()->put(control);
 }

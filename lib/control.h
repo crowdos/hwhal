@@ -3,21 +3,14 @@
 
 #include <string>
 
-class Context;
-
 class Control {
 public:
-  virtual ~Control();
-
-  Context *context();
-
-  bool init(const std::string& name);
+  virtual ~Control() {}
+  virtual bool init() { return true; }
+  virtual void destroy() { delete this; }
 
 protected:
-  Control(Context *ctx);
-
-private:
-  Context *m_context;
+  Control() {}
 };
 
 #endif /* CONTROL_H */

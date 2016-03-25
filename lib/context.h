@@ -22,6 +22,8 @@ public:
   Info *info();
   Battery *battery();
 
+  void put(Control *control);
+
 private:
   Context();
   bool init(bool test);

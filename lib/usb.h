@@ -3,12 +3,10 @@
 
 #include "control.h"
 
-class Context;
-
 class Usb : public Control {
 public:
-  Usb(Context *ctx);
-  ~Usb();
+  Usb() {}
+  virtual ~Usb() {}
 };
 
 #endif /* USB_H */
