@@ -12,3 +12,9 @@ Control::Control(Context *ctx) :
   m_context(ctx) {
 
 }
+
+bool Control::init(const std::string& name) {
+  // TODO:
+
+  return true;
+}

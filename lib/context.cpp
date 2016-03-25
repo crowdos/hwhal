@@ -1,13 +1,14 @@
 #include "context.h"
+#include "plugin.h"
 #include "display.h"
 #include "usb.h"
 #include "info.h"
 #include "battery.h"
 
-Context *Context::create() {
+Context *Context::create(bool test) {
   Context *ctx = new Context;
 
-  if (!ctx->init()) {
+  if (!ctx->init(test)) {
     delete ctx;
     ctx = nullptr;
   }
@@ -15,7 +16,8 @@ Context *Context::create() {
   return ctx;
 }
 
-Context::Context() {
+Context::Context() :
+  m_plugin(nullptr) {
 
 }
 
@@ -25,12 +27,16 @@ Context::~Context() {
   }
 
   m_controls.clear();
+
+  if (m_plugin) {
+    delete m_plugin;
+    m_plugin = nullptr;
+  }
 }
 
-bool Context::init() {
-  // TODO:
-
-  return true;
+bool Context::init(bool test) {
+  m_plugin = test ? new TestPlugin : new Plugin;
+  return m_plugin->load();
 }
 
 Display *Context::display() {
@@ -54,6 +60,11 @@ template <typename T> T *Context::control(const std::string& name) {
     return dynamic_cast<T *>(m_controls.at(name));
   } catch (const std::out_of_range& ex) {
     T *t = new T(this);
+    if (!t->init(name)) {
+      delete t;
+      return nullptr;
+    }
+
     m_controls.insert(std::make_pair(name, t));
     return t;
   } catch (...) {
