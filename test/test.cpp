@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include "context.h"
 #include "info.h"
 
@@ -12,6 +13,11 @@ int main(int argc, char *argv[]) {
   std::cout << "Display " << ctx->display() << std::endl;
   std::cout << "USB " << ctx->usb() << std::endl;
   Info *info = ctx->info();
+  {
+    Info *info2 = ctx->info();
+    assert(info == info2);
+  }
+
   std::cout << "Info " << info << std::endl;
   std::cout << " Maker: " << info->maker() << ", Model: " << info->model() << ", Code: " << info->codeName() << std::endl;
   ctx->put(info);

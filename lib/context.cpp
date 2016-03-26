@@ -7,6 +7,28 @@
 #include "info.h"
 #include "battery.h"
 
+#include <algorithm>
+#include <cassert>
+
+class Wrapper {
+public:
+  Wrapper(Control *ctl, const std::string& name) :
+    m_ctl(ctl),
+    m_name(name),
+    m_ref(1) {}
+
+  void ref() { ++m_ref; }
+  void unref() { --m_ref; }
+  int refCount() { return m_ref; }
+  std::string name() { return m_name; }
+  Control *control() { return m_ctl; }
+
+private:
+  int m_ref;
+  std::string m_name;
+  Control *m_ctl;
+};
+
 Context *Context::create(bool test) {
   Context *ctx = new Context;
 
@@ -25,7 +47,8 @@ Context::Context() :
 
 Context::~Context() {
   for (auto it : m_controls) {
-    delete it.second;
+    m_plugin->hal()->put(it->control());
+    delete it;
   }
 
   m_controls.clear();
@@ -58,9 +81,35 @@ Battery *Context::battery() {
 }
 
 template <typename T> T *Context::control(const std::string& name) {
-  return dynamic_cast<T *>(m_plugin->hal()->get(name));
+  for (auto it : m_controls) {
+    if (it->name() == name) {
+      it->ref();
+      return dynamic_cast<T *>(it->control());
+    }
+  }
+
+  Control *ctl = m_plugin->hal()->get(name);
+  if (ctl) {
+    Wrapper *w = new Wrapper(ctl, name);
+    m_controls.push_back(w);
+    return dynamic_cast<T *>(w->control());
+  }
+
+  return nullptr;
 }
 
 void Context::put(Control *control) {
-  m_plugin->hal()->put(control);
+  auto iter = std::find_if(m_controls.begin(), m_controls.end(),
+			   [control](Wrapper *w) { return w->control() == control; });
+
+  assert(iter != m_controls.end());
+
+  Wrapper *w = *iter;
+
+  w->unref();
+  if (w->refCount() == 0) {
+    m_controls.remove(w);
+    m_plugin->hal()->put(w->control());
+    delete w;
+  }
 }

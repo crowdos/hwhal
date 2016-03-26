@@ -2,8 +2,9 @@
 #define CONTEXT_H
 
 #include <string>
-#include <map>
+#include <list>
 
+class Wrapper;
 class Control;
 class Display;
 class Usb;
@@ -29,7 +30,7 @@ private:
   bool init(bool test);
 
   template <typename T> T *control(const std::string& name);
-  std::map<std::string, Control *> m_controls;
+  std::list<Wrapper *> m_controls;
   Plugin *m_plugin;
 };
 
