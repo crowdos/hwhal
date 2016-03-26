@@ -5,6 +5,6 @@ add_library(hwhal SHARED
 
 target_link_libraries(hwhal dl)
 
-set_target_properties(hwhal PROPERTIES SOVERSION 0.0.1 VERSION 0.0.1)
+set_target_properties(hwhal PROPERTIES SOVERSION 1 VERSION 1)
 
 install(TARGETS hwhal LIBRARY DESTINATION /usr/lib)
