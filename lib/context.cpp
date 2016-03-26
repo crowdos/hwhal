@@ -46,10 +46,11 @@ Context::Context() :
 }
 
 Context::~Context() {
-  for (auto it : m_controls) {
-    m_plugin->hal()->put(it->control());
-    delete it;
-  }
+  std::for_each(m_controls.begin(), m_controls.end(),
+		[this] (Wrapper *w) {
+		  m_plugin->hal()->put(w->control());
+		  delete w;
+		});
 
   m_controls.clear();
 
@@ -81,21 +82,26 @@ Battery *Context::battery() {
 }
 
 template <typename T> T *Context::control(const std::string& name) {
-  for (auto it : m_controls) {
-    if (it->name() == name) {
-      it->ref();
-      return dynamic_cast<T *>(it->control());
-    }
-  }
+  auto it = std::find_if(m_controls.begin(), m_controls.end(),
+			 [name] (Wrapper *w) {
+			   return w->name() == name;
+			 });
 
-  Control *ctl = m_plugin->hal()->get(name);
-  if (ctl) {
+  if (it == m_controls.end()) {
+    Control *ctl = m_plugin->hal()->get(name);
+    if (!ctl) {
+      return nullptr;
+    }
+
     Wrapper *w = new Wrapper(ctl, name);
     m_controls.push_back(w);
-    return dynamic_cast<T *>(w->control());
+    it = m_controls.end();
+    --it;
+  } else {
+    (*it)->ref();
   }
 
-  return nullptr;
+  return dynamic_cast<T *>((*it)->control());
 }
 
 void Context::put(Control *control) {
