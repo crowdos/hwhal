@@ -1,0 +1,32 @@
+Source: hwhal
+Section: misc
+Priority: optional
+Maintainer: Mohammed Sameer <msameer@foolab.org>
+Build-Depends: debhelper (>= 9),
+               cmake
+Standards-Version: 3.9.6
+
+Package: libhwhal1
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: hwhal library
+ hwhal library
+
+Package: libhwhal-dev
+Architecture: any
+Section: devel
+Depends: ${misc:Depends},
+         libhwhal1 (= ${binary:Version}),
+         ${shlibs:Depends}
+Description: hwhal library development headers
+ hwhal library development headers
+
+Package: libhwhal-dbg
+Priority: extra
+Architecture: any
+Section: debug
+Depends: libhwhal1 (= ${binary:Version}),
+         ${misc:Depends}
+Description: hwhal library debugging symbols
+ This package contains the debugging symbols for hwhal library
