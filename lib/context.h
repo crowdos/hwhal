@@ -10,6 +10,7 @@ class Display;
 class Usb;
 class Info;
 class Battery;
+class Lights;
 class Plugin;
 
 class Context {
@@ -22,6 +23,7 @@ public:
   Usb *usb();
   Info *info();
   Battery *battery();
+  Lights *lights();
 
   void put(Control *control);
 

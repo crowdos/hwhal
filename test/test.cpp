@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   std::cout << " Maker: " << info->maker() << ", Model: " << info->model() << ", Code: " << info->codeName() << std::endl;
   ctx->put(info);
   std::cout << "Battery " << ctx->battery() << std::endl;
+  std::cout << "Lights " << ctx->lights() << std::endl;
 
   delete ctx;
 

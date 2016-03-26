@@ -4,6 +4,7 @@
 #include "usbhal.h"
 #include "batteryhal.h"
 #include "displayhal.h"
+#include "lightshal.h"
 #include <iostream>
 
 class HAL : public HwHal {
@@ -30,6 +31,8 @@ class HAL : public HwHal {
       ctl = new BatteryHal;
     } else if (name == "display") {
       ctl = new DisplayHal;
+    } else if (name == "lights") {
+      ctl = new LightsHal;
     } else {
       std::cerr << "Unknown hal ID " << name << std::endl;
     }

@@ -5,5 +5,6 @@ add_library(hwhal-test MODULE
   displayhal.cpp
   usbhal.cpp
   batteryhal.cpp
+  lightshal.cpp
   plugin.cpp
   )

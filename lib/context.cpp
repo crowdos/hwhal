@@ -6,6 +6,7 @@
 #include "usb.h"
 #include "info.h"
 #include "battery.h"
+#include "lights.h"
 
 #include <algorithm>
 #include <cassert>
@@ -79,6 +80,10 @@ Info *Context::info() {
 
 Battery *Context::battery() {
   return control<Battery>("battery");
+}
+
+Lights *Context::lights() {
+  return control<Lights>("lights");
 }
 
 template <typename T> T *Context::control(const std::string& name) {
