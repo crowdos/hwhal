@@ -25,13 +25,13 @@ public:
   Battery *battery();
   Lights *lights();
 
+  template <typename T> T *control(const std::string& name);
   void put(Control *control);
 
 private:
   Context();
   bool init(bool test);
 
-  template <typename T> T *control(const std::string& name);
   std::list<Wrapper *> m_controls;
   Plugin *m_plugin;
 };
