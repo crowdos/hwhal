@@ -9,6 +9,7 @@ enum class ControlId {
   Usb,
   Battery,
   Lights,
+  Keys,
 };
 
 class Control {

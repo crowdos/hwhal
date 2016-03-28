@@ -6,6 +6,7 @@
 #include "usb.h"
 #include "battery.h"
 #include "lights.h"
+#include "keys.h"
 
 int main(int argc, char *argv[]) {
   Context *ctx = Context::create(true);

@@ -14,6 +14,7 @@ set(HEADERS
   display.h
   hwhal.h
   info.h
+  keys.h
   lights.h
   plugin.h
   usb.h
