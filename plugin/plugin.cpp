@@ -20,21 +20,29 @@ class HAL : public HwHal {
     delete this;
   }
 
-  Control *get(const std::string& name) {
+  Control *get(const ControlId& id) {
     Control *ctl = nullptr;
 
-    if (name == "info") {
+    switch (id) {
+    case ControlId::Info:
       ctl = new InfoHal;
-    } else if (name == "usb") {
+      break;
+    case ControlId::Usb:
       ctl = new UsbHal;
-    } else if (name == "battery") {
+      break;
+    case ControlId::Battery:
       ctl = new BatteryHal;
-    } else if (name == "display") {
+      break;
+    case ControlId::Display:
       ctl = new DisplayHal;
-    } else if (name == "lights") {
+      break;
+    case ControlId::Lights:
       ctl = new LightsHal;
-    } else {
-      std::cerr << "Unknown hal ID " << name << std::endl;
+      break;
+    default:
+      std::cerr << "Unknown hal ID "
+		<< static_cast<std::underlying_type<ControlId>::type>(id)
+		<< std::endl;
     }
 
     return ctl;

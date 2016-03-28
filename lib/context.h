@@ -3,14 +3,10 @@
 
 #include <string>
 #include <list>
+#include "control.h"
 
 class Wrapper;
 class Control;
-class Display;
-class Usb;
-class Info;
-class Battery;
-class Lights;
 class Plugin;
 
 class Context {
@@ -19,17 +15,17 @@ public:
 
   ~Context();
 
-  Display *display();
-  Usb *usb();
-  Info *info();
-  Battery *battery();
-  Lights *lights();
+  template <typename T> T *control(const ControlId& id) {
+    Control *ctl = findControl(id);
+    return ctl ? dynamic_cast<T *>(ctl) : nullptr;
+  }
 
-  template <typename T> T *control(const std::string& name);
   void put(Control *control);
 
 private:
   Context();
+  Control *findControl(const ControlId& id);
+
   bool init(bool test);
 
   std::list<Wrapper *> m_controls;

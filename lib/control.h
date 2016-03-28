@@ -3,6 +3,14 @@
 
 #include <string>
 
+enum class ControlId {
+  Info,
+  Display,
+  Usb,
+  Battery,
+  Lights,
+};
+
 class Control {
 public:
   virtual ~Control() {}

@@ -1,32 +1,25 @@
 #include "context.h"
 #include "plugin.h"
 #include "hwhal.h"
-
-#include "display.h"
-#include "usb.h"
-#include "info.h"
-#include "battery.h"
-#include "lights.h"
-
 #include <algorithm>
 #include <cassert>
 
 class Wrapper {
 public:
-  Wrapper(Control *ctl, const std::string& name) :
+  Wrapper(Control *ctl, const ControlId& id) :
     m_ctl(ctl),
-    m_name(name),
+    m_id(id),
     m_ref(1) {}
 
   void ref() { ++m_ref; }
   void unref() { --m_ref; }
   int refCount() { return m_ref; }
-  std::string name() { return m_name; }
+  ControlId id() { return m_id; }
   Control *control() { return m_ctl; }
 
 private:
   int m_ref;
-  std::string m_name;
+  ControlId m_id;
   Control *m_ctl;
 };
 
@@ -66,39 +59,19 @@ bool Context::init(bool test) {
   return m_plugin->load();
 }
 
-Display *Context::display() {
-  return control<Display>("display");
-}
-
-Usb *Context::usb() {
-  return control<Usb>("usb");
-}
-
-Info *Context::info() {
-  return control<Info>("info");
-}
-
-Battery *Context::battery() {
-  return control<Battery>("battery");
-}
-
-Lights *Context::lights() {
-  return control<Lights>("lights");
-}
-
-template <typename T> T *Context::control(const std::string& name) {
+Control *Context::findControl(const ControlId& id) {
   auto it = std::find_if(m_controls.begin(), m_controls.end(),
-			 [name] (Wrapper *w) {
-			   return w->name() == name;
+			 [id] (Wrapper *w) {
+			   return w->id() == id;
 			 });
 
   if (it == m_controls.end()) {
-    Control *ctl = m_plugin->hal()->get(name);
+    Control *ctl = m_plugin->hal()->get(id);
     if (!ctl) {
       return nullptr;
     }
 
-    Wrapper *w = new Wrapper(ctl, name);
+    Wrapper *w = new Wrapper(ctl, id);
     m_controls.push_back(w);
     it = m_controls.end();
     --it;
@@ -106,7 +79,7 @@ template <typename T> T *Context::control(const std::string& name) {
     (*it)->ref();
   }
 
-  return dynamic_cast<T *>((*it)->control());
+  return (*it)->control();
 }
 
 void Context::put(Control *control) {
