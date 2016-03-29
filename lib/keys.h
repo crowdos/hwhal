@@ -3,8 +3,8 @@
 
 #include "control.h"
 
-#define KEY_PRESSED            "1"
-#define KEY_RELEASED           "0"
+#define KEY_PRESSED            '1'
+#define KEY_RELEASED           '0'
 
 class Keys : public Control {
 public:

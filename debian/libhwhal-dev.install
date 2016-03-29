@@ -1,2 +1,3 @@
 usr/lib/libhwhal.so
+usr/lib/libhwhal-keys-evdev.so
 usr/include/hwhal/*
