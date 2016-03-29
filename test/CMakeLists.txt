@@ -1,4 +1,4 @@
 include_directories(../lib)
 
-add_executable(test test.cpp)
-target_link_libraries(test hwhal)
+add_executable(test-app test.cpp)
+target_link_libraries(test-app hwhal)
