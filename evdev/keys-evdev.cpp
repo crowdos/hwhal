@@ -28,6 +28,15 @@ public:
 
   ~HwHalKeysEvdevState() {
     stop();
+
+    close(m_fd);
+    m_fd = -1;
+
+    close(m_sv[0]);
+    m_sv[0] = -1;
+
+    close(m_sv[1]);
+    m_sv[1] = -1;
   }
 
   bool start() {
