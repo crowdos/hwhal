@@ -1,5 +1,5 @@
-#include "hwhal.h"
-#include "control.h"
+#include "hwhal/hwhal.h"
+#include "hwhal/control.h"
 #include "infohal.h"
 #include "usbhal.h"
 #include "batteryhal.h"

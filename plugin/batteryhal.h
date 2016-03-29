@@ -1,7 +1,7 @@
 #ifndef BATTERY_HAL_H
 #define BATTERY_HAL_H
 
-#include "battery.h"
+#include "hwhal/battery.h"
 
 class BatteryHal : public Battery {
 

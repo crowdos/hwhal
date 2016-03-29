@@ -1,7 +1,7 @@
 #ifndef DISPLAY_HAL_H
 #define DISPLAY_HAL_H
 
-#include "display.h"
+#include "hwhal/display.h"
 
 class DisplayHal : public Display {
 public:

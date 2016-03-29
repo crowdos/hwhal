@@ -1,12 +1,12 @@
 #include <iostream>
 #include <cassert>
-#include "context.h"
-#include "info.h"
-#include "display.h"
-#include "usb.h"
-#include "battery.h"
-#include "lights.h"
-#include "keys.h"
+#include "hwhal/context.h"
+#include "hwhal/info.h"
+#include "hwhal/display.h"
+#include "hwhal/usb.h"
+#include "hwhal/battery.h"
+#include "hwhal/lights.h"
+#include "hwhal/keys.h"
 
 int main(int argc, char *argv[]) {
   Context *ctx = Context::create(true);

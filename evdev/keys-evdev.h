@@ -1,7 +1,7 @@
 #ifndef HWHAL_KEYS_EVDEV_H
 #define HWHAL_KEYS_EVDEV_H
 
-#include <keys.h>
+#include "hwhal/keys.h"
 #include <map>
 
 class HwHalKeysEvdevState;

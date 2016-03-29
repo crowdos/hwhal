@@ -1,4 +1,4 @@
-include_directories(../lib)
+include_directories(../)
 
 add_library(hwhal-keys-evdev SHARED
   keys-evdev.cpp

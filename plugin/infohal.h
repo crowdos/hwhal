@@ -1,7 +1,7 @@
 #ifndef INFO_HAL_H
 #define INFO_HAL_H
 
-#include "info.h"
+#include "hwhal/info.h"
 
 class InfoHal : public Info {
   std::string maker();

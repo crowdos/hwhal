@@ -1,7 +1,7 @@
 #ifndef LIGHTS_HAL_H
 #define LIGHTS_HAL_H
 
-#include "lights.h"
+#include "hwhal/lights.h"
 
 class LightsHal : public Lights {
 public:
