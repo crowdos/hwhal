@@ -140,7 +140,11 @@ private:
       return false;
     }
 
-    return test_bit(EV_SYN, bit[0]) && test_bit(EV_KEY, bit[0]) && test_bit(code, bit[code]);
+    if (ioctl(fd, EVIOCGBIT(EV_KEY, KEY_MAX), bit[EV_KEY]) == -1) {
+      return false;
+    }
+
+    return test_bit(EV_SYN, bit[0]) && test_bit(EV_KEY, bit[0]) && test_bit(code, bit[EV_KEY]);
   }
 
   std::thread m_thread;
