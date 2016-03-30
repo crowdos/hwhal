@@ -13,6 +13,13 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 
+// I hate evdev
+#define OFF(x)  ((x)%BITS_PER_LONG)
+#define LONG(x) ((x)/BITS_PER_LONG)
+#define BITS_PER_LONG (sizeof(long) * 8)
+#define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
+#define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+
 class HwHalKeysEvdevState {
 public:
   HwHalKeysEvdevState(int code) {
@@ -65,6 +72,14 @@ public:
 
 private:
   void run() {
+    // In the beginning, We semd the current state:
+    unsigned long bits[NBITS(KEY_MAX)];
+    memset(bits, 0, sizeof(bits));
+    if (ioctl(m_fd, EVIOCGKEY(sizeof(bits)), bits) != -1) {
+      char c = test_bit(m_code, bits) ? KEY_PRESSED : KEY_RELEASED;
+      write(m_sv[0], &c, sizeof(c));
+    }
+
     struct input_event ev[64];
     while (true) {
       ssize_t s = read(m_fd, ev, sizeof(ev));
@@ -127,13 +142,6 @@ private:
   }
 
   bool has_code(int fd, int code) {
-    // I hate evdev
-#define OFF(x)  ((x)%BITS_PER_LONG)
-#define LONG(x) ((x)/BITS_PER_LONG)
-#define BITS_PER_LONG (sizeof(long) * 8)
-#define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
-#define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
-
     unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
     memset(bit, 0, sizeof(bit));
     if (ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]) == -1) {
