@@ -8,6 +8,7 @@
 class Wrapper;
 class Control;
 class Plugin;
+class LoopIntegration;
 
 class Context {
 public:
@@ -15,8 +16,8 @@ public:
 
   ~Context();
 
-  template <typename T> T *control(const ControlId& id) {
-    Control *ctl = findControl(id);
+  template <typename T> T *control(LoopIntegration *loop, const ControlId& id) {
+    Control *ctl = findControl(loop, id);
     return ctl ? dynamic_cast<T *>(ctl) : nullptr;
   }
 
@@ -24,7 +25,7 @@ public:
 
 private:
   Context();
-  Control *findControl(const ControlId& id);
+  Control *findControl(LoopIntegration *loop, const ControlId& id);
 
   bool init(bool test);
 

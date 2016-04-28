@@ -59,14 +59,14 @@ bool Context::init(bool test) {
   return m_plugin->load();
 }
 
-Control *Context::findControl(const ControlId& id) {
+Control *Context::findControl(LoopIntegration *loop, const ControlId& id) {
   auto it = std::find_if(m_controls.begin(), m_controls.end(),
 			 [id] (Wrapper *w) {
 			   return w->id() == id;
 			 });
 
   if (it == m_controls.end()) {
-    Control *ctl = m_plugin->hal()->get(id);
+    Control *ctl = m_plugin->hal()->get(loop, id);
     if (!ctl) {
       return nullptr;
     }

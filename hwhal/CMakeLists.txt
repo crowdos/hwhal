@@ -18,6 +18,7 @@ set(HEADERS
   lights.h
   plugin.h
   usb.h
+  loopintegration.h
   )
 
 install(TARGETS hwhal LIBRARY DESTINATION /usr/lib)
