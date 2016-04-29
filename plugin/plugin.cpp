@@ -12,7 +12,7 @@ class HAL : public HwHal {
     return HWHAL_VERSION_CURRENT;
   }
 
-  bool init() {
+  bool init(LoopIntegration *loop) {
     return true;
   }
 
@@ -20,7 +20,7 @@ class HAL : public HwHal {
     delete this;
   }
 
-  Control *get(LoopIntegration *loop, const ControlId& id) {
+  Control *get(const ControlId& id) {
     Control *ctl = nullptr;
 
     switch (id) {

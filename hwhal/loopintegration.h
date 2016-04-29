@@ -3,24 +3,31 @@
 
 #include <functional>
 #include <cstdint>
+#include <functional>
+#include <memory>
 
 class LoopIntegration {
 public:
-  LoopIntegration() {}
+  class FdWatcher {
+  public:
+    virtual ~FdWatcher() {}
+    virtual void stop() = 0;
+  };
+
+  class Timer {
+  public:
+    virtual ~Timer() {}
+    virtual void stop() = 0;
+  };
+
   virtual ~LoopIntegration() {}
 
-  // The callback is of the form void callback(bool ok);
-  // If ok is false then the callback will be removed after the callback returns.
-  virtual uint64_t addFileDescriptor(int fd, const std::function<void(bool)>& cb) = 0;
+  // watch an fd
+  virtual std::unique_ptr<FdWatcher>
+    addFileDescriptor(const std::function<void(bool)>& cb, int fd) = 0;
 
-  // remove id
-  virtual void removeFileDescriptor(uint64_t id) = 0;
-
-  // call cb later
-  virtual uint64_t post(const std::function<void()>& cb, int ms = 1000) = 0;
-
-  // prevent a post from running
-  virtual void clear(uint64_t id);
+  // call me later
+  virtual std::unique_ptr<Timer> post(const std::function<void()>& cb, int ms) = 0;
 };
 
 #endif /* LOOP_INTEGRATION_H */

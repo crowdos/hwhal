@@ -10,9 +10,10 @@
 
 typedef HwHal *(*__init)();
 
-Plugin::Plugin() :
+Plugin::Plugin(LoopIntegration *loop) :
   m_handle(nullptr),
-  m_hal(nullptr) {
+  m_hal(nullptr),
+  m_loop(loop) {
 
 }
 
@@ -47,7 +48,7 @@ bool Plugin::load() {
     return false;
   }
 
-  return m_hal->init();
+  return m_hal->init(m_loop);
 }
 
 void Plugin::unload() {

@@ -6,15 +6,18 @@
 #define HWHAL_SYM                      "__init"
 
 class HwHal;
+class LoopIntegration;
 
 class Plugin {
 public:
-  Plugin();
+  Plugin(LoopIntegration *loop);
   virtual ~Plugin();
 
   bool load();
 
   HwHal *hal();
+
+  LoopIntegration *loopIntegration() const { return m_loop; }
 
 private:
   void unload();
@@ -23,9 +26,14 @@ private:
 
   void *m_handle;
   HwHal *m_hal;
+  LoopIntegration *m_loop;
 };
 
 class TestPlugin : public Plugin {
+public:
+  TestPlugin(LoopIntegration *loop) : Plugin(loop) {}
+
+private:
   const char *path();
 };
 

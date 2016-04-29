@@ -1,3 +1,4 @@
 usr/lib/libhwhal.so
 usr/lib/libhwhal-keys-evdev.so
+usr/lib/libhwhal-loopintegration-asio.so
 usr/include/hwhal/*

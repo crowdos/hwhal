@@ -12,12 +12,12 @@ class LoopIntegration;
 
 class Context {
 public:
-  static Context *create(bool test = false);
+  static Context *create(LoopIntegration *loop, bool test = false);
 
   ~Context();
 
-  template <typename T> T *control(LoopIntegration *loop, const ControlId& id) {
-    Control *ctl = findControl(loop, id);
+  template <typename T> T *control(const ControlId& id) {
+    Control *ctl = findControl(id);
     return ctl ? dynamic_cast<T *>(ctl) : nullptr;
   }
 
@@ -25,9 +25,9 @@ public:
 
 private:
   Context();
-  Control *findControl(LoopIntegration *loop, const ControlId& id);
+  Control *findControl(const ControlId& id);
 
-  bool init(bool test);
+  bool init(LoopIntegration *loop, bool test);
 
   std::list<Wrapper *> m_controls;
   Plugin *m_plugin;

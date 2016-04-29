@@ -23,10 +23,10 @@ private:
   Control *m_ctl;
 };
 
-Context *Context::create(bool test) {
+Context *Context::create(LoopIntegration *loop, bool test) {
   Context *ctx = new Context;
 
-  if (!ctx->init(test)) {
+  if (!ctx->init(loop, test)) {
     delete ctx;
     ctx = nullptr;
   }
@@ -54,19 +54,19 @@ Context::~Context() {
   }
 }
 
-bool Context::init(bool test) {
-  m_plugin = test ? new TestPlugin : new Plugin;
+bool Context::init(LoopIntegration *loop, bool test) {
+  m_plugin = test ? new TestPlugin(loop) : new Plugin(loop);
   return m_plugin->load();
 }
 
-Control *Context::findControl(LoopIntegration *loop, const ControlId& id) {
+Control *Context::findControl(const ControlId& id) {
   auto it = std::find_if(m_controls.begin(), m_controls.end(),
 			 [id] (Wrapper *w) {
 			   return w->id() == id;
 			 });
 
   if (it == m_controls.end()) {
-    Control *ctl = m_plugin->hal()->get(loop, id);
+    Control *ctl = m_plugin->hal()->get(id);
     if (!ctl) {
       return nullptr;
     }
