@@ -1,6 +1,6 @@
 #include "usbhal.h"
 
-void UsbHal::addListener(std::function<void(bool)>& listener) {
+void UsbHal::addListener(const std::function<void(bool)>& listener) {
 
 }
 

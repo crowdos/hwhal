@@ -15,7 +15,7 @@ public:
   Usb() {}
   virtual ~Usb() {}
 
-  virtual void addListener(std::function<void(bool)>& listener) = 0;
+  virtual void addListener(const std::function<void(bool)>& listener) = 0;
 
   virtual bool isCableConnected() = 0;
   virtual bool setMode(const Mode& mode) = 0;

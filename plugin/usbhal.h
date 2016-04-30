@@ -4,7 +4,7 @@
 #include "hwhal/usb.h"
 
 class UsbHal : public Usb {
-  void addListener(std::function<void(bool)>& listener);
+  void addListener(const std::function<void(bool)>& listener);
   bool isCableConnected();
   bool setMode(const Mode& mode);
 };
