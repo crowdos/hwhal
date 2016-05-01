@@ -22,7 +22,8 @@ public:
 	       boost::asio::io_service& service,
 	       const std::function<void(bool)>& cb) :
     Service(id),
-    m_desc(service) {
+    m_desc(service),
+    m_cb(cb) {
     m_desc.assign(fd);
   }
 
@@ -54,7 +55,7 @@ private:
 };
 
 void WatchService::start() {
-  auto func = [this](const boost::system::error_code& code, int) {
+  auto func = [this](const boost::system::error_code& code, size_t) {
     if (code) {
       // We have an error.
       m_cb(false);
