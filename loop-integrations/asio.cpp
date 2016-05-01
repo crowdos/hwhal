@@ -56,6 +56,12 @@ private:
 
 void WatchService::start() {
   auto func = [this](const boost::system::error_code& code, size_t) {
+    if (code == boost::system::errc::operation_canceled) {
+      // We should do nothing here
+      // We can still be called by asio after the object gets destroyed
+      return;
+    }
+
     if (code) {
       // We have an error.
       m_cb(false);
