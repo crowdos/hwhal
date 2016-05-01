@@ -1,180 +1,125 @@
 #include "asio.h"
-#include <iostream>
-class LoopIntegrationAsio::TimerService {
+
+class LoopIntegrationAsio::Service {
 public:
-  TimerService(boost::asio::io_service& service, const std::function<void()>& cb, int ms) :
-    m_cb(cb),
-    m_timer(service, boost::posix_time::milliseconds(ms)) {
+  Service(uint64_t id) :
+    m_id(id) {}
 
-    m_timer.async_wait([this](const boost::system::error_code& code){
-	if (!code) {
-	  m_cb();
-	  delete this;
-	}
-      });
+  virtual ~Service() {}
+
+  uint64_t id() const { return m_id; }
+
+  virtual void start() = 0;
+  virtual void stop() = 0;
+
+private:
+  const uint64_t m_id;
+};
+
+class WatchService : public LoopIntegrationAsio::Service {
+public:
+  WatchService(int fd, uint64_t id,
+	       boost::asio::io_service& service,
+	       const std::function<void(bool)>& cb) :
+    Service(id),
+    m_desc(service) {
+    m_desc.assign(fd);
   }
 
-  ~TimerService() {
-    cancel();
-    m_notify();
-  }
+  ~WatchService() { stop(); }
+  void start();
+  void stop() { m_desc.cancel(); }
 
-  void cancel() {
-    m_timer.cancel();
-  }
+private:
+  boost::asio::posix::stream_descriptor m_desc;
+  std::function<void(bool)> m_cb;
+};
 
-  void setNotify(const std::function<void()>& notify) {
-    m_notify = notify;
-  }
+class TimerService : public LoopIntegrationAsio::Service {
+public:
+  TimerService(int ms, uint64_t id,
+	       boost::asio::io_service& service,
+	       const std::function<void()>& cb) :
+    Service(id),
+    m_timer(service, boost::posix_time::milliseconds(ms)),
+    m_cb(cb) { }
+
+  ~TimerService() { stop(); }
+  void start();
+  void stop() { m_timer.cancel(); }
 
 private:
   std::function<void()> m_cb;
   boost::asio::deadline_timer m_timer;
-  std::function<void()> m_notify;
 };
 
-class LoopIntegrationAsio::FdService {
-public:
-  FdService(boost::asio::io_service& service, const std::function<void(bool)>& cb, int fd) :
-    m_desc(service),
-    m_cb(cb) {
-    m_desc.assign(fd);
+void WatchService::start() {
+  auto func = [this](const boost::system::error_code& code, int) {
+    if (code) {
+      // We have an error.
+      m_cb(false);
+    } else {
+      m_cb(true);
+      start();
+    }
+  };
 
-    read();
-  }
+  m_desc.async_read_some(boost::asio::null_buffers(), func);
+}
 
-  ~FdService() {
-    cancel();
-    m_notify();
-  }
-
-  void cancel() {
-    m_desc.cancel();
-  }
-
-  void setNotify(const std::function<void()>& notify) {
-    m_notify = notify;
-  }
-
-private:
-  void read() {
-    auto func = [this](const boost::system::error_code& code, int) {
-      if (code) {
-	// We have an error.
-	m_cb(false);
-	delete this;
-      } else {
-	m_cb(true);
-	read();
+void TimerService::start() {
+  m_timer.async_wait([this](const boost::system::error_code& code){
+      if (!code) {
+	m_cb();
       }
-    };
-
-    m_desc.async_read_some(boost::asio::null_buffers(), func);
-  }
-
-  boost::asio::posix::stream_descriptor m_desc;
-  std::function<void(bool)> m_cb;
-  std::function<void()> m_notify;
-};
-
-class LoopIntegrationAsioFdWatcher : public LoopIntegrationAsio::FdWatcher {
-public:
-  LoopIntegrationAsioFdWatcher(LoopIntegrationAsio::FdService *service) :
-    m_service(service) { }
-
-  ~LoopIntegrationAsioFdWatcher() {
-    delete m_service;
-    m_service = nullptr;
-  }
-
-  void stop() {
-    m_service->cancel();
-  }
-
-private:
-  LoopIntegrationAsio::FdService *m_service;
-};
-
-class LoopIntegrationAsioTimer : public LoopIntegration::Timer {
-public:
-  LoopIntegrationAsioTimer(LoopIntegrationAsio::TimerService *service) :
-    m_service(service) { }
-
-  ~LoopIntegrationAsioTimer() {
-    delete m_service;
-    m_service = nullptr;
-  }
-
-  void stop() {
-    m_service->cancel();
-  }
-
-private:
-  LoopIntegrationAsio::TimerService *m_service;
-};
+    });
+}
 
 LoopIntegrationAsio::LoopIntegrationAsio(boost::asio::io_service& service) :
+  m_nextId(1),
   m_service(service) {
 
 }
 
 LoopIntegrationAsio::~LoopIntegrationAsio() {
-  while (!m_fds.empty()) {
-    auto iter = m_fds.begin();
+  while (!m_services.empty()) {
+    auto iter = m_services.begin();
     auto service = *iter;
-    m_fds.erase(iter);
-    delete service;
-  }
-
-  while (!m_timers.empty()) {
-    auto iter = m_timers.begin();
-    auto service = *iter;
-    m_timers.erase(iter);
+    m_services.erase(iter);
+    service->stop();
     delete service;
   }
 }
 
-std::unique_ptr<LoopIntegrationAsio::FdWatcher>
-LoopIntegrationAsio::addFileDescriptor(const std::function<void(bool)>& cb, int fd) {
-  LoopIntegrationAsio::FdService *service = new LoopIntegrationAsio::FdService(m_service, cb, fd);
+uint64_t LoopIntegrationAsio::addFileDescriptor(int fd, const std::function<void(bool)>& cb) {
+  Service *service = new WatchService(fd, m_nextId++, m_service, cb);
+  service->start();
+  m_services.push_back(service);
 
-  m_fds.push_back(service);
-
-  service->setNotify([this, &service]() {
-      auto iter =
-	std::find_if(m_fds.begin(), m_fds.end(), [&service] (LoopIntegrationAsio::FdService *s){
-	    std::cerr << "Delete fd " << s << " " << service;
-	    return s == service;
-	  });
-      if (iter != m_fds.end()) {
-	m_fds.erase(iter);
-      }
-    });
-
-  LoopIntegration::FdWatcher *watcher = new LoopIntegrationAsioFdWatcher(service);
-
-  return std::unique_ptr<LoopIntegration::FdWatcher>(watcher);
+  return service->id();
 }
 
-std::unique_ptr<LoopIntegrationAsio::Timer>
-LoopIntegrationAsio::post(const std::function<void()>& cb, int ms) {
-  LoopIntegrationAsio::TimerService *service =
-    new LoopIntegrationAsio::TimerService(m_service, cb, ms);
+uint64_t LoopIntegrationAsio::post(int ms, const std::function<void()>& cb) {
+  Service *service = new TimerService(ms, m_nextId++, m_service, cb);
+  service->start();
+  m_services.push_back(service);
 
-  m_timers.push_back(service);
+  return service->id();
+}
 
-  service->setNotify([this, &service]() {
-      auto iter =
-	std::find_if(m_timers.begin(), m_timers.end(), [&service] (LoopIntegrationAsio::TimerService *s){
-	    std::cerr << "Delete timer " << s << " " << service;
-	    return s == service;
-	  });
-      if (iter != m_timers.end()) {
-	m_timers.erase(iter);
-      }
+void LoopIntegrationAsio::cancel(uint64_t id) {
+  if (id <= 0) {
+    return;
+  }
+
+  auto iter = std::find_if(m_services.begin(), m_services.end(), [id](Service *service) {
+      return service->id() == id;
     });
 
-  LoopIntegrationAsio::Timer *watcher = new LoopIntegrationAsioTimer(service);
-
-  return std::unique_ptr<LoopIntegration::Timer>(watcher);
+  if (iter != m_services.end()) {
+    auto service = *iter;
+    m_services.erase(iter);
+    service->stop();
+    delete service;
+  }
 }

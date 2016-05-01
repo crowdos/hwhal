@@ -7,19 +7,19 @@
 
 class LoopIntegrationAsio : public LoopIntegration {
 public:
-  class TimerService;
-  class FdService;
+  class Service;
 
   LoopIntegrationAsio(boost::asio::io_service& service);
   ~LoopIntegrationAsio();
 
-  std::unique_ptr<FdWatcher> addFileDescriptor(const std::function<void(bool)>& cb, int fd);
-  std::unique_ptr<Timer> post(const std::function<void()>& cb, int ms);
+  uint64_t addFileDescriptor(int fd, const std::function<void(bool)>& cb);
+  uint64_t post(int ms, const std::function<void()>& cb);
+  void cancel(uint64_t id);
 
 private:
+  uint64_t m_nextId;
   boost::asio::io_service& m_service;
-  std::deque<TimerService *> m_timers;
-  std::deque<FdService *> m_fds;
+  std::deque<Service *> m_services;
 };
 
 #endif /* LOOP_INTEGRATION_ASIO_H */
