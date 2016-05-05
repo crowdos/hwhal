@@ -2,22 +2,23 @@
 #define HWHAL_KEYS_EVDEV_H
 
 #include "hwhal/keys.h"
+#include <functional>
 #include <map>
 
 class HwHalKeysEvdevState;
+class LoopIntegration;
 
 class HwHalKeysEvdev : public Keys {
 public:
-  HwHalKeysEvdev();
+  HwHalKeysEvdev(LoopIntegration *loop);
   ~HwHalKeysEvdev();
 
-  int fd(const Key& key);
-
-  bool monitor(const Key& key, bool enable);
+  bool monitor(const Key& key, const std::function<void(bool)>& listener);
 
 private:
   HwHalKeysEvdevState *findKey(const Key& key);
 
+  LoopIntegration *m_loop;
   std::map<Keys::Key, HwHalKeysEvdevState *> m_keys;
 };
 
