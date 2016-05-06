@@ -1,4 +1,6 @@
 #include "asio.h"
+#include <chrono>
+#include <boost/asio/steady_timer.hpp>
 
 class LoopIntegrationAsio::Service {
 public:
@@ -42,16 +44,20 @@ public:
 	       boost::asio::io_service& service,
 	       const std::function<void()>& cb) :
     Service(id),
-    m_timer(service, boost::posix_time::milliseconds(ms)),
-    m_cb(cb) { }
+    m_ms(ms),
+    m_timer(service),
+    m_cb(cb) {
+
+  }
 
   ~TimerService() { stop(); }
   void start();
   void stop() { m_timer.cancel(); }
 
 private:
+  int m_ms;
   std::function<void()> m_cb;
-  boost::asio::deadline_timer m_timer;
+  boost::asio::steady_timer m_timer;
 };
 
 void WatchService::start() {
@@ -75,9 +81,12 @@ void WatchService::start() {
 }
 
 void TimerService::start() {
+  m_timer.expires_from_now(std::chrono::milliseconds(m_ms));
+
   m_timer.async_wait([this](const boost::system::error_code& code){
       if (!code) {
 	m_cb();
+	start();
       }
     });
 }
