@@ -1,3 +1,4 @@
 usr/lib/libhwhal.so.1
 usr/lib/libhwhal-keys-evdev.so.1
 usr/lib/libhwhal-loopintegration-asio.so.1
+usr/lib/libhwhal-loopintegration-glib.so.1

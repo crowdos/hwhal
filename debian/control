@@ -5,7 +5,8 @@ Maintainer: Mohammed Sameer <msameer@foolab.org>
 Build-Depends: debhelper (>= 9),
                cmake,
                pkg-config,
-               libboost-system-dev
+               libboost-system-dev,
+               libglib2.0-dev
 Standards-Version: 3.9.6
 
 Package: libhwhal1
