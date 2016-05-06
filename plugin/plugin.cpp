@@ -12,7 +12,7 @@ class HAL : public HwHal {
     return HWHAL_VERSION_CURRENT;
   }
 
-  bool init(LoopIntegration *loop) {
+  bool init(LoopIntegration *) {
     return true;
   }
 

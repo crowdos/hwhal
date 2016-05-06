@@ -51,13 +51,13 @@ public:
 	// TODO: What should we do if ok is false?
 	if (ok) {
 	  struct input_event ev[64];
-	  ssize_t s = read(m_fd, ev, sizeof(ev));
+	  size_t s = read(m_fd, ev, sizeof(ev));
 	  if (s < sizeof(struct input_event)) {
 	    // TODO: What should we do here really?
 	    return;
 	  }
 
-	  for (int i = 0; i < s / sizeof(struct input_event); i++) {
+	  for (size_t i = 0; i < s / sizeof(struct input_event); i++) {
 	    unsigned int type, code;
 	    type = ev[i].type;
 	    code = ev[i].code;
@@ -141,7 +141,7 @@ private:
 
   LoopIntegration *m_loop;
   std::function<void(bool)> m_listener;
-  int m_code;
+  unsigned int m_code;
   int m_fd;
   uint64_t m_id;
 };

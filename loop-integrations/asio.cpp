@@ -45,8 +45,8 @@ public:
 	       const std::function<void()>& cb) :
     Service(id),
     m_ms(ms),
-    m_timer(service),
-    m_cb(cb) {
+    m_cb(cb),
+    m_timer(service) {
 
   }
 

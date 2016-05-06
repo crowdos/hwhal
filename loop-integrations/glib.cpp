@@ -42,7 +42,7 @@ public:
   void start();
 
 private:
-  static gboolean __WatchService_dispatch(GIOChannel *source,
+  static gboolean __WatchService_dispatch(G_GNUC_UNUSED GIOChannel *source,
 					  GIOCondition condition,
 					  WatchService *that) {
     bool error = (condition == G_IO_ERR ||

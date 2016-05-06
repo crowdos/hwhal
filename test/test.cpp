@@ -9,7 +9,7 @@
 #include "hwhal/keys.h"
 #include "hwhal/loopintegration.h"
 
-int main(int argc, char *argv[]) {
+int main(int, char **) {
   Context *ctx = Context::create(nullptr, true);
   if (!ctx) {
     std::cerr << "Failed to initialize HwHal context" << std::endl;

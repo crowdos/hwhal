@@ -7,9 +7,9 @@
 class Wrapper {
 public:
   Wrapper(Control *ctl, const ControlId& id) :
-    m_ctl(ctl),
+    m_ref(1),
     m_id(id),
-    m_ref(1) {}
+    m_ctl(ctl) { }
 
   void ref() { ++m_ref; }
   void unref() { --m_ref; }

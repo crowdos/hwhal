@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(HwHal)
 set(CMAKE_CXX_FLAGS "-std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -W")
 
 add_subdirectory(hwhal)
 add_subdirectory(loop-integrations)
