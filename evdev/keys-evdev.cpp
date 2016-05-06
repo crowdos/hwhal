@@ -71,7 +71,7 @@ public:
     return true;
   }
 
-  bool stop() {
+  void stop() {
     if (m_id != 0) {
       m_loop->cancel(m_id);
       m_id = 0;
