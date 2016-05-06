@@ -1,4 +1,5 @@
 #include "glib.h"
+#include <glib.h>
 #include <algorithm>
 
 class LoopIntegrationGlib::Service {

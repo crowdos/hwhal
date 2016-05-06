@@ -2,7 +2,6 @@
 #define LOOP_INTEGRATION_GLIB_H
 
 #include <hwhal/loopintegration.h>
-#include <glib.h>
 #include <deque>
 
 class LoopIntegrationGlib : public LoopIntegration {
