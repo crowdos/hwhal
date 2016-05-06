@@ -10,6 +10,7 @@ enum class ControlId {
   Battery,
   Lights,
   Keys,
+  Sensors,
 };
 
 class Control {

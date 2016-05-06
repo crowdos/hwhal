@@ -18,6 +18,7 @@ set(HEADERS
   lights.h
   plugin.h
   usb.h
+  sensors.h
   loopintegration.h
   )
 

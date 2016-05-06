@@ -8,6 +8,7 @@
 #include "hwhal/lights.h"
 #include "hwhal/keys.h"
 #include "hwhal/loopintegration.h"
+#include "hwhal/sensors.h"
 
 int main(int, char **) {
   Context *ctx = Context::create(nullptr, true);
