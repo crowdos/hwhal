@@ -1,8 +1,5 @@
 #include "hwhal.h"
-#include "stateplugin.h"
-#include <sstream>
-
-#include <hwhal/loopintegration/asio.h>
+#include <loop-integrations/asio.h>
 #include <hwhal/context.h>
 #include <hwhal/control.h>
 #include <hwhal/display.h>
@@ -107,7 +104,7 @@ bool DeviceCodeName::read(std::stringstream& data) {
 }
 
 bool UsbConnected::read(std::stringstream& data) {
-  data << m_connected ? "1" : "0";
+  data << (m_connected ? "1" : "0");
   return true;
 }
 

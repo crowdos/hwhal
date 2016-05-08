@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sstream>
-#include "stateplugin.h"
+#include <systemstate/stateplugin.h>
 #include <hwhal/control.h>
 
 class Context;
@@ -18,7 +18,7 @@ public:
   virtual bool start() = 0;
   virtual void stop() = 0;
   bool read(std::string& data);
-  virtual bool write(const std::string& data) { return false; }
+  virtual bool write(const std::string&) { return false; }
 
 protected:
   virtual bool read(std::stringstream& data) = 0;

@@ -6,7 +6,8 @@ Build-Depends: debhelper (>= 9),
                cmake,
                pkg-config,
                libboost-system-dev,
-               libglib2.0-dev
+               libglib2.0-dev,
+               systemstate-dev
 Standards-Version: 3.9.6
 
 Package: libhwhal1
@@ -30,6 +31,15 @@ Priority: extra
 Architecture: any
 Section: debug
 Depends: libhwhal1 (= ${binary:Version}),
+         systemstate-plugin-hwhal (= ${binary:Version}),
          ${misc:Depends}
 Description: hwhal library debugging symbols
  This package contains the debugging symbols for hwhal library
+
+Package: systemstate-plugin-hwhal
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         systemstate (= ${binary:Version})
+Description: systemstate hwhal plugin
+ systemstate hwhal plugin
