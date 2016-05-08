@@ -7,7 +7,7 @@
 #include <hwhal/info.h>
 #include <hwhal/usb.h>
 
-bool ControlContainer::read(std::string& data) {
+bool ControlNodeInterface::read(std::string& data) {
   std::stringstream s;
 
   if (read(s)) {
@@ -192,19 +192,19 @@ bool HwHalPlugin::start(systemstate::FileNode *node) {
     return false;
   }
 
-  return dynamic_cast<ControlContainer *>(node)->start();
+  return dynamic_cast<ControlNodeInterface *>(node)->start();
 }
 
 void HwHalPlugin::stop(systemstate::FileNode *node) {
-  dynamic_cast<ControlContainer *>(node)->stop();
+  dynamic_cast<ControlNodeInterface *>(node)->stop();
 }
 
 bool HwHalPlugin::read(systemstate::FileNode *node, std::string& data) {
-  return dynamic_cast<ControlContainer *>(node)->read(data);
+  return dynamic_cast<ControlNodeInterface *>(node)->read(data);
 }
 
 bool HwHalPlugin::write(systemstate::FileNode *node, const std::string& data) {
-  return dynamic_cast<ControlContainer *>(node)->write(data);
+  return dynamic_cast<ControlNodeInterface *>(node)->write(data);
 }
 
 REGISTER_STATE_PLUGIN(HwHalPlugin);

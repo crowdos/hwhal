@@ -12,9 +12,9 @@ class Lights;
 class Info;
 class Usb;
 
-class ControlContainer {
+class ControlNodeInterface {
 public:
-  virtual ~ControlContainer() {}
+  virtual ~ControlNodeInterface() {}
   virtual bool start() = 0;
   virtual void stop() = 0;
   bool read(std::string& data);
@@ -24,7 +24,7 @@ protected:
   virtual bool read(std::stringstream& data) = 0;
 };
 
-template <class T> class ControlNode : public systemstate::FileNode, public ControlContainer {
+template <class T> class ControlNode : public systemstate::FileNode, public ControlNodeInterface {
 public:
   ControlNode(const std::string& name, systemstate::DirNode *dir, systemstate::Plugin *plugin,
 	      Context *ctx, const ControlId& id);
