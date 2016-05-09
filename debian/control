@@ -40,6 +40,6 @@ Package: systemstate-plugin-hwhal
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         systemstate (= ${binary:Version})
+         systemstate
 Description: systemstate hwhal plugin
  systemstate hwhal plugin
