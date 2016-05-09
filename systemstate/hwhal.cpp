@@ -6,6 +6,7 @@
 #include <hwhal/lights.h>
 #include <hwhal/info.h>
 #include <hwhal/usb.h>
+#include "sensors.h"
 
 bool ControlNodeInterface::read(std::string& data) {
   std::stringstream s;
@@ -149,17 +150,22 @@ public:
 private:
   LoopIntegration *m_loop;
   Context *m_ctx;
+  SensorsHalContainer *m_sensors;
 };
 
 HwHalPlugin::HwHalPlugin(boost::asio::io_service& service) :
   m_loop(new LoopIntegrationAsio(service)),
-  m_ctx(nullptr) {
+  m_ctx(nullptr),
+  m_sensors(nullptr) {
 
 }
 
 HwHalPlugin::~HwHalPlugin() {
   delete m_loop;
   m_loop = nullptr;
+
+  delete m_sensors;
+  m_sensors = nullptr;
 
   delete m_ctx;
   m_ctx = nullptr;
@@ -185,6 +191,13 @@ void HwHalPlugin::init(systemstate::DirNode *root) {
 
   systemstate::DirNode *usb = root->appendDir("USB");
   usb->appendFile(new UsbConnected(usb, this, m_ctx));
+
+  if (!m_sensors) {
+    m_sensors = new SensorsHalContainer(m_ctx);
+  }
+
+  systemstate::DirNode *sensors = root->appendDir("Sensors");
+  sensors->appendFile(new AvailableSensors(sensors, this, m_sensors));
 }
 
 bool HwHalPlugin::start(systemstate::FileNode *node) {

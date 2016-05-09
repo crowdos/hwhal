@@ -11,6 +11,7 @@ class Display;
 class Lights;
 class Info;
 class Usb;
+class Sensors;
 
 class ControlNodeInterface {
 public:
