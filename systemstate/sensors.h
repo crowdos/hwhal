@@ -46,16 +46,19 @@ private:
   std::function<void(const Sensors::Reading& reading)> m_cb;
 };
 
-class AvailableSensors : public SensorNode {
+class AvailableSensors : public ControlNodeInterface, public systemstate::FileNode {
 public:
   AvailableSensors(systemstate::DirNode *dir, systemstate::Plugin *plugin,
 		   SensorsHalContainer *container) :
-    SensorNode("Available", dir, plugin, container, (Sensors::Sensor)-1) {}
-  ~AvailableSensors() {}
+    FileNode("Available", dir, plugin), m_container(container) {}
+  ~AvailableSensors() { m_container = nullptr; }
 
   bool start() override { return true; }
   void stop() override {}
   bool read(std::stringstream& data) override;
+
+private:
+  SensorsHalContainer *m_container;
 };
 
 #endif /* SENSORS_PLUGIN_H */

@@ -192,7 +192,7 @@ bool AvailableSensors::read(std::stringstream& data) {
   std::list<std::string> available;
 
   for (auto iter : sensors) {
-    if (container()->hasSensor(iter.first)) {
+    if (m_container->hasSensor(iter.first)) {
       available.push_back(iter.second);
     }
   }
