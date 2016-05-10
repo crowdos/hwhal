@@ -39,7 +39,12 @@ public:
 
   SensorsHalContainer *container() const { return m_container; }
 
+  const Sensors::Reading& reading() const { return m_reading; }
+
 private:
+  void setReading(const Sensors::Reading& reading);
+
+  Sensors::Reading m_reading;
   SensorsHalContainer *m_container;
   int m_id;
   Sensors::Sensor m_sensor;
@@ -59,6 +64,42 @@ public:
 
 private:
   SensorsHalContainer *m_container;
+};
+
+class AccelerometerReading : public SensorNode {
+public:
+  AccelerometerReading(systemstate::DirNode *dir, systemstate::Plugin *plugin,
+		   SensorsHalContainer *container) :
+    SensorNode("Reading", dir, plugin, container, Sensors::Accelerometer) {}
+
+  bool read(std::stringstream& data) override;
+};
+
+class AccelerometerX : public SensorNode {
+public:
+  AccelerometerX(systemstate::DirNode *dir, systemstate::Plugin *plugin,
+		   SensorsHalContainer *container) :
+    SensorNode("X", dir, plugin, container, Sensors::Accelerometer) {}
+
+  bool read(std::stringstream& data) override;
+};
+
+class AccelerometerY : public SensorNode {
+public:
+AccelerometerY(systemstate::DirNode *dir, systemstate::Plugin *plugin,
+		   SensorsHalContainer *container) :
+    SensorNode("Y", dir, plugin, container, Sensors::Accelerometer) {}
+
+  bool read(std::stringstream& data) override;
+};
+
+class AccelerometerZ : public SensorNode {
+public:
+AccelerometerZ(systemstate::DirNode *dir, systemstate::Plugin *plugin,
+		   SensorsHalContainer *container) :
+    SensorNode("Z", dir, plugin, container, Sensors::Accelerometer) {}
+
+  bool read(std::stringstream& data) override;
 };
 
 #endif /* SENSORS_PLUGIN_H */

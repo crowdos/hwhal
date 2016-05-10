@@ -198,6 +198,12 @@ void HwHalPlugin::init(systemstate::DirNode *root) {
 
   systemstate::DirNode *sensors = root->appendDir("Sensors");
   sensors->appendFile(new AvailableSensors(sensors, this, m_sensors));
+
+  systemstate::DirNode *accelerometer = sensors->appendDir("Accelerometer");
+  accelerometer->appendFile(new AccelerometerReading(accelerometer, this, m_sensors));
+  accelerometer->appendFile(new AccelerometerX(accelerometer, this, m_sensors));
+  accelerometer->appendFile(new AccelerometerY(accelerometer, this, m_sensors));
+  accelerometer->appendFile(new AccelerometerZ(accelerometer, this, m_sensors));
 }
 
 bool HwHalPlugin::start(systemstate::FileNode *node) {

@@ -159,6 +159,12 @@ SensorNode::SensorNode(const std::string& name, systemstate::DirNode *dir,
   m_id(-1),
   m_sensor(sensor) {
 
+  m_cb = [this](const Sensors::Reading& reading) {
+    setReading(reading);
+  };
+
+  m_reading.valid = Sensors::Invalid;
+  m_reading.data[0] = m_reading.data[1] = m_reading.data[2] = 0;
 }
 
 SensorNode::~SensorNode() {
@@ -166,18 +172,23 @@ SensorNode::~SensorNode() {
 }
 
 bool SensorNode::start() {
-  if (m_cb) {
-    m_id = m_container->addMonitor(m_sensor, m_cb);
-    return m_id != -1;
-  }
-
-  return true;
+  m_id = m_container->addMonitor(m_sensor, m_cb);
+  return m_id != -1;
 }
 
 void SensorNode::stop() {
   if (m_id != -1) {
     m_container->removeMonitor(m_sensor, m_id);
     m_id = -1;
+  }
+}
+
+void SensorNode::setReading(const Sensors::Reading& reading) {
+  m_reading = reading;
+  std::string data;
+
+  if (read(data)) {
+    dataChanged(data);
   }
 }
 
@@ -201,5 +212,49 @@ bool AvailableSensors::read(std::stringstream& data) {
 			  [](const std::string& a, const std::string& b) ->std::string{
 			    return a.empty() ? b : a + " " + b;
 			  });
+  return true;
+}
+
+bool AccelerometerReading::read(std::stringstream& data) {
+  const Sensors::Reading& r(reading());
+  if (r.valid == Sensors::Invalid) {
+    return false;
+  }
+
+  data << r.data[0] << " " << r.data[1] << " " << r.data[2];
+
+  return true;
+}
+
+bool AccelerometerX::read(std::stringstream& data) {
+  const Sensors::Reading& r(reading());
+  if (r.valid == Sensors::Invalid) {
+    return false;
+  }
+
+  data << r.data[0];
+
+  return true;
+}
+
+bool AccelerometerY::read(std::stringstream& data) {
+  const Sensors::Reading& r(reading());
+  if (r.valid == Sensors::Invalid) {
+    return false;
+  }
+
+  data << r.data[1];
+
+  return true;
+}
+
+bool AccelerometerZ::read(std::stringstream& data) {
+  const Sensors::Reading& r(reading());
+  if (r.valid == Sensors::Invalid) {
+    return false;
+  }
+
+  data << r.data[2];
+
   return true;
 }
