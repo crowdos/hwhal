@@ -1,6 +1,7 @@
 #include "asio.h"
 #include <chrono>
 #include <boost/asio/steady_timer.hpp>
+#include <iostream>
 
 class LoopIntegrationAsio::Service {
 public:
@@ -27,6 +28,7 @@ public:
     m_desc(service),
     m_cb(cb) {
     m_desc.assign(fd);
+
   }
 
   ~WatchService() { stop(); }
@@ -108,7 +110,16 @@ LoopIntegrationAsio::~LoopIntegrationAsio() {
 }
 
 uint64_t LoopIntegrationAsio::addFileDescriptor(int fd, const std::function<void(bool)>& cb) {
-  Service *service = new WatchService(fd, m_nextId++, m_service, cb);
+  Service *service = nullptr;
+
+  try {
+    service = new WatchService(fd, m_nextId++, m_service, cb);
+  } catch (const std::exception& ex) {
+    std::cerr << "LoopIntegrationAsio: Failed to add fd: " << ex.what() << std::endl;
+    --m_nextId;
+    return 0;
+  }
+
   service->start();
   m_services.push_back(service);
 
