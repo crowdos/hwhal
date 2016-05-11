@@ -8,6 +8,8 @@
 #include <hwhal/usb.h>
 #include "sensors.h"
 
+namespace ph = std::placeholders;
+
 bool ControlNodeInterface::read(std::string& data) {
   std::stringstream s;
 
@@ -200,10 +202,24 @@ void HwHalPlugin::init(systemstate::DirNode *root) {
   sensors->appendFile(new AvailableSensors(sensors, this, m_sensors));
 
   systemstate::DirNode *accelerometer = sensors->appendDir("Accelerometer");
-  accelerometer->appendFile(new AccelerometerReading(accelerometer, this, m_sensors));
-  accelerometer->appendFile(new AccelerometerX(accelerometer, this, m_sensors));
-  accelerometer->appendFile(new AccelerometerY(accelerometer, this, m_sensors));
-  accelerometer->appendFile(new AccelerometerZ(accelerometer, this, m_sensors));
+  accelerometer->appendFile(new SensorReading("Reading", accelerometer, this, m_sensors, Sensors::Accelerometer,
+					      std::bind(&SensorReading::extract, -1, ph::_1, ph::_2)));
+  accelerometer->appendFile(new SensorReading("X", accelerometer, this, m_sensors, Sensors::Accelerometer,
+					      std::bind(&SensorReading::extract, 0, ph::_1, ph::_2)));
+  accelerometer->appendFile(new SensorReading("Y", accelerometer, this, m_sensors, Sensors::Accelerometer,
+					      std::bind(&SensorReading::extract, 1, ph::_1, ph::_2)));
+  accelerometer->appendFile(new SensorReading("Z", accelerometer, this, m_sensors, Sensors::Accelerometer,
+					      std::bind(&SensorReading::extract, 2, ph::_1, ph::_2)));
+
+  systemstate::DirNode *magnetometer = sensors->appendDir("Magnetometer");
+  magnetometer->appendFile(new SensorReading("Reading", magnetometer, this, m_sensors, Sensors::Magnetometer,
+					     std::bind(&SensorReading::extract, -1, ph::_1, ph::_2)));
+  magnetometer->appendFile(new SensorReading("X", magnetometer, this, m_sensors, Sensors::Magnetometer,
+					     std::bind(&SensorReading::extract, 0, ph::_1, ph::_2)));
+  magnetometer->appendFile(new SensorReading("Y", magnetometer, this, m_sensors, Sensors::Magnetometer,
+					     std::bind(&SensorReading::extract, 1, ph::_1, ph::_2)));
+  magnetometer->appendFile(new SensorReading("Z", magnetometer, this, m_sensors, Sensors::Magnetometer,
+					     std::bind(&SensorReading::extract, 2, ph::_1, ph::_2)));
 }
 
 bool HwHalPlugin::start(systemstate::FileNode *node) {

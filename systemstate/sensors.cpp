@@ -215,38 +215,20 @@ bool AvailableSensors::read(std::stringstream& data) {
   return true;
 }
 
-bool AccelerometerReading::read(std::stringstream& data) {
+bool SensorReading::read(std::stringstream& data) {
   const Sensors::Reading& r(reading());
+
   if (r.valid == Sensors::Valid) {
-    data << r.data[0] << " " << r.data[1] << " " << r.data[2];
+    m_formatter(r, data);
   }
 
   return true;
 }
 
-bool AccelerometerX::read(std::stringstream& data) {
-  const Sensors::Reading& r(reading());
-  if (r.valid == Sensors::Valid) {
-    data << r.data[0];
+void SensorReading::extract(int n, const Sensors::Reading& r, std::stringstream& s) {
+  if (n >= 0) {
+    s << r.data[n];
+  } else {
+    s << r.data[0] << " " << r.data[1] << " " << r.data[2];
   }
-
-  return true;
-}
-
-bool AccelerometerY::read(std::stringstream& data) {
-  const Sensors::Reading& r(reading());
-  if (r.valid == Sensors::Valid) {
-    data << r.data[1];
-  }
-
-  return true;
-}
-
-bool AccelerometerZ::read(std::stringstream& data) {
-  const Sensors::Reading& r(reading());
-  if (r.valid == Sensors::Valid) {
-    data << r.data[2];
-  }
-
-  return true;
 }
