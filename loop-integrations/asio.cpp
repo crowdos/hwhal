@@ -12,7 +12,7 @@ public:
 
   uint64_t id() const { return m_id; }
 
-  virtual void start() = 0;
+  virtual bool start() = 0;
   virtual void stop() = 0;
 
 private:
@@ -25,17 +25,18 @@ public:
 	       boost::asio::io_service& service,
 	       const std::function<void(bool)>& cb) :
     Service(id),
+    m_fd(fd),
     m_desc(service),
     m_cb(cb) {
-    m_desc.assign(fd);
 
   }
 
   ~WatchService() { stop(); }
-  void start();
-  void stop() { m_desc.cancel(); }
+  bool start() override;
+  void stop() override { m_desc.cancel(); }
 
 private:
+  int m_fd;
   boost::asio::posix::stream_descriptor m_desc;
   std::function<void(bool)> m_cb;
 };
@@ -53,8 +54,8 @@ public:
   }
 
   ~TimerService() { stop(); }
-  void start();
-  void stop() { m_timer.cancel(); }
+  bool start() override;
+  void stop() override { m_timer.cancel(); }
 
 private:
   int m_ms;
@@ -62,7 +63,15 @@ private:
   boost::asio::steady_timer m_timer;
 };
 
-void WatchService::start() {
+bool WatchService::start() {
+  if (m_desc.native_handle() != m_fd) {
+    try {
+      m_desc.assign(m_fd);
+    } catch (...) {
+      return false;
+    }
+  }
+
   auto func = [this](const boost::system::error_code& code, size_t) {
     if (code == boost::system::errc::operation_canceled) {
       // We should do nothing here
@@ -80,9 +89,11 @@ void WatchService::start() {
   };
 
   m_desc.async_read_some(boost::asio::null_buffers(), func);
+
+  return true;
 }
 
-void TimerService::start() {
+bool TimerService::start() {
   m_timer.expires_from_now(std::chrono::milliseconds(m_ms));
 
   m_timer.async_wait([this](const boost::system::error_code& code){
@@ -91,6 +102,8 @@ void TimerService::start() {
 	start();
       }
     });
+
+  return true;
 }
 
 LoopIntegrationAsio::LoopIntegrationAsio(boost::asio::io_service& service) :
@@ -110,28 +123,13 @@ LoopIntegrationAsio::~LoopIntegrationAsio() {
 }
 
 uint64_t LoopIntegrationAsio::addFileDescriptor(int fd, const std::function<void(bool)>& cb) {
-  Service *service = nullptr;
-
-  try {
-    service = new WatchService(fd, m_nextId++, m_service, cb);
-  } catch (const std::exception& ex) {
-    std::cerr << "LoopIntegrationAsio: Failed to add fd: " << ex.what() << std::endl;
-    --m_nextId;
-    return 0;
-  }
-
-  service->start();
-  m_services.push_back(service);
-
-  return service->id();
+  Service *service = new WatchService(fd, m_nextId++, m_service, cb);
+  return addService(service);
 }
 
 uint64_t LoopIntegrationAsio::post(int ms, const std::function<void()>& cb) {
   Service *service = new TimerService(ms, m_nextId++, m_service, cb);
-  service->start();
-  m_services.push_back(service);
-
-  return service->id();
+  return addService(service);
 }
 
 void LoopIntegrationAsio::cancel(uint64_t id) {
@@ -149,4 +147,15 @@ void LoopIntegrationAsio::cancel(uint64_t id) {
     service->stop();
     delete service;
   }
+}
+
+uint64_t LoopIntegrationAsio::addService(LoopIntegrationAsio::Service *service) {
+  if (!service->start()) {
+    --m_nextId;
+    delete service;
+    return 0;
+  }
+
+  m_services.push_back(service);
+  return service->id();
 }

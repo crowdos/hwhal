@@ -17,6 +17,8 @@ public:
   void cancel(uint64_t id);
 
 private:
+  uint64_t addService(Service *service);
+
   uint64_t m_nextId;
   boost::asio::io_service& m_service;
   std::deque<Service *> m_services;
