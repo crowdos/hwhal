@@ -1,6 +1,4 @@
 #include "asio.h"
-#include <chrono>
-#include <boost/asio/steady_timer.hpp>
 #include <iostream>
 
 class LoopIntegrationAsio::Service {
@@ -47,20 +45,22 @@ public:
 	       boost::asio::io_service& service,
 	       const std::function<void()>& cb) :
     Service(id),
+    m_fd(-1),
     m_ms(ms),
     m_cb(cb),
-    m_timer(service) {
+    m_desc(service) {
 
   }
 
   ~TimerService() { stop(); }
   bool start() override;
-  void stop() override { m_timer.cancel(); }
+  void stop() override { m_desc.cancel(); close(m_fd); m_fd = -1; }
 
 private:
+  int m_fd;
   int m_ms;
   std::function<void()> m_cb;
-  boost::asio::steady_timer m_timer;
+  boost::asio::posix::stream_descriptor m_desc;
 };
 
 bool WatchService::start() {
@@ -94,14 +94,45 @@ bool WatchService::start() {
 }
 
 bool TimerService::start() {
-  m_timer.expires_from_now(std::chrono::milliseconds(m_ms));
+  if (m_fd == -1) {
+    m_fd = timerfd_create(CLOCK_MONOTONIC, 0);
+    if (m_fd == -1) {
+      return false;
+    }
 
-  m_timer.async_wait([this](const boost::system::error_code& code){
-      if (!code) {
-	m_cb();
-	start();
-      }
-    });
+    struct itimerspec itval = {{0, m_ms * 1000000}, {0, m_ms * 1000000}};
+
+    if (timerfd_settime(m_fd, 0, &itval, NULL) != 0) {
+      close(m_fd);
+      m_fd = -1;
+      return false;
+    }
+
+    try {
+      m_desc.assign(m_fd);
+    } catch (...) {
+      close(m_fd);
+      m_fd = -1;
+      return false;
+    }
+  }
+
+  auto func = [this](const boost::system::error_code& code, size_t) {
+    if (code == boost::system::errc::operation_canceled) {
+      // We should do nothing here
+      // We can still be called by asio after the object gets destroyed
+      return;
+    }
+
+    if (!code) {
+      uint64_t n = 0;
+      read(m_fd, &n, sizeof(n));
+      m_cb();
+      start();
+    }
+  };
+
+  m_desc.async_read_some(boost::asio::null_buffers(), func);
 
   return true;
 }
